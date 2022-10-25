@@ -28,6 +28,7 @@ add_library(
   src/rrbot_system_with_sensor.cpp
   src/rrbot_actuator.cpp
   src/external_rrbot_force_torque_sensor.cpp
+  src/rrdiffbot/rrdiffbot_arm_system_position_only.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
