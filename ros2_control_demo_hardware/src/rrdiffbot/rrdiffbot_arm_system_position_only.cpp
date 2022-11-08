@@ -29,9 +29,8 @@ namespace ros2_control_demo_hardware
 hardware_interface::CallbackReturn RRDiffBotArmSystemPositionOnlyHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
-  RCLCPP_INFO_STREAM(rclcpp::get_logger("RRDiffBotArmSystemPositionOnlyHardware"), info);
-  RCLCPP_DEBUG_STREAM(rclcpp::get_logger("RRDiffBotArmSystemPositionOnlyHardware"), info);
-
+  // RCLCPP_DEBUG_STREAM(rclcpp::get_logger("RRDiffBotArmSystemPositionOnlyHardware"), info);
+  
   if (
     hardware_interface::SystemInterface::on_init(info) !=
     hardware_interface::CallbackReturn::SUCCESS)
