@@ -34,11 +34,11 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
     name="RRBot_1" prefix="$(arg prefix)" />
 
   <!-- Second rrbot-->
-  <xacro:rrbot parent="world" prefix="$(arg prefix)">
+  <!-- <xacro:rrbot parent="world" prefix="$(arg prefix)">
     <origin xyz="-2 0 0" rpy="0 0 0" />
   </xacro:rrbot>
 
   <xacro:rrbot_two
-    name="RRBot_2" prefix="$(arg prefix)" />
+    name="RRBot_2" prefix="$(arg prefix)" /> -->
 
 </robot>
