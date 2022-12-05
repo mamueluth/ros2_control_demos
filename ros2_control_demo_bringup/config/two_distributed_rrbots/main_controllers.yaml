@@ -1,0 +1,5 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 10  # Hz
+    distributed: true
+    sub_controller_manager: false # false -> is centralized controller.

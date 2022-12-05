@@ -14,39 +14,38 @@
 
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import Command, FindExecutable,LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+def generate_complete_namespace(prefix, controller_manager_name):
+    return "/" + prefix + "/" + controller_manager_name
 
 def generate_launch_description():
-    # Declare arguments
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "namespace",
-            default_value="/",
-            description="Start everything relative to provided namespace.",
-        )
-    )
-
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "controller_manager_name",
-            default_value="/controller_manager",
-            description="Fullname of controller_manager. Set if you define the namespace yourself.",
-        )
-    )
-
-    # Initialize Arguments
-    namespace = LaunchConfiguration("namespace")
-    controller_manager_name = LaunchConfiguration("controller_manager_name")
+    # TODO(Manuel): find a way to propagate to controllers.yaml
+    # otherwise we have to define there two
+    satellite_1_namespace_name = "sub_1"
+    satellite_1_controller_manager_name = generate_complete_namespace(satellite_1_namespace_name, "controller_manager")
 
     # Get URDF via xacro
-    robot_description_content = Command(
+    main_robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [
+                    FindPackageShare("two_distributed_rrbots_description"),
+                    "urdf",
+                    "main.urdf.xacro",
+                ]
+            ),
+        ]
+    )
+
+    robot_satellite_1_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
@@ -59,13 +58,17 @@ def generate_launch_description():
             ),
         ]
     )
-    robot_description = {"robot_description": robot_description_content}
+    
+    # create parameter from description content
+    main_robot_description = {"robot_description": main_robot_description_content}
+    robot_satellite_1_description = {"robot_description": robot_satellite_1_description_content}
 
-    robot_controllers = PathJoinSubstitution(
+    # Get controller manager settings
+    main_robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("ros2_control_demo_bringup"),
             "config/two_distributed_rrbots",
-            "two_distributed_rrbots_central_controller.yaml",
+            "main_controllers.yaml",
         ]
     )
 
@@ -77,15 +80,12 @@ def generate_launch_description():
         ]
     )
     
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots.rviz"]
-    )
-
-    control_node = Node(
+    # MAIN CONTROLLER MANAGER
+    # Main controller manager node
+    main_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        namespace=namespace,
-        parameters=[robot_description, robot_controllers_satellite_1],
+        parameters=[main_robot_description, main_robot_controllers],
         remappings=[
             (
                 "/forward_position_controller/commands",
@@ -94,42 +94,43 @@ def generate_launch_description():
         ],
         output="both",
     )
+
+    # SUBSYSTEMS
+    # subsystem 1, satellite controller
+    sub_1_control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        namespace=satellite_1_namespace_name,
+        parameters=[robot_satellite_1_description, robot_controllers_satellite_1],
+        remappings=[
+            (
+                "/forward_position_controller/commands",
+                "/position_commands",
+            ),
+        ],
+        output="both",
+    )
+
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        namespace=namespace,
+        namespace=satellite_1_namespace_name,
         output="both",
-        parameters=[robot_description],
-    )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        namespace=namespace,
-        output="log",
-        arguments=["-d", rviz_config_file],
+        parameters=[robot_satellite_1_description],
     )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=namespace,
-        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
+        namespace=satellite_1_namespace_name,
+        arguments=["joint_state_broadcaster", "-c", satellite_1_controller_manager_name ],
     )
 
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=namespace,
-        arguments=["forward_position_controller", "-c", controller_manager_name],
-    )
-
-    # Delay rviz start after `joint_state_broadcaster`
-    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[rviz_node],
-        )
+        namespace=satellite_1_namespace_name,
+        arguments=["forward_position_controller", "-c", satellite_1_controller_manager_name],
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -140,12 +141,35 @@ def generate_launch_description():
         )
     )
 
+    # RVIZ
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots.rviz"]
+    )
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        namespace=satellite_1_namespace_name,
+        output="log",
+        arguments=["-d", rviz_config_file],
+    )
+
+    # Delay rviz start after `joint_state_broadcaster`
+    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[rviz_node],
+        )
+    )
+
     nodes = [
-        control_node,
+        main_control_node,
+        sub_1_control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
         delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
 
-    return LaunchDescription(declared_arguments + nodes)
+    return LaunchDescription(nodes)
