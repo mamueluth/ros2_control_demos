@@ -23,11 +23,10 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
   </gazebo>
 
   <!-- First rrbot-->
-  <xacro:rrbot parent="world" prefix="$(arg prefix)">
+  <xacro:rrbot parent="world" prefix="$(arg prefix)" base_color="green">
     <origin xyz="2 0 0" rpy="0 0 0" />
   </xacro:rrbot>
 
   <xacro:rrbot_one_hw
     name="rrbot_satellite_1" prefix="$(arg prefix)" />
-
 </robot>

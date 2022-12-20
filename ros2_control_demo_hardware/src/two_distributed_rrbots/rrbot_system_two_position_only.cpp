@@ -182,7 +182,8 @@ hardware_interface::CallbackReturn RRBotSystemTwoPositionOnlyHardware::on_deacti
       hw_stop_sec_ - i);
   }
 
-  RCLCPP_INFO(rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Successfully deactivated!");
+  RCLCPP_INFO(
+    rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Successfully deactivated!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -196,13 +197,14 @@ hardware_interface::return_type RRBotSystemTwoPositionOnlyHardware::read(
 
   for (uint i = 0; i < hw_states_.size(); i++)
   {
-    // Simulate RRBot's movement
-    hw_states_[i] = hw_states_[i] + (hw_commands_[i] - hw_states_[i]) / hw_slowdown_;
+    // Simulate RRBot's movement mirrowed
+    hw_states_[i] = hw_states_[i] - (hw_commands_[i] - hw_states_[i]) / hw_slowdown_;
     RCLCPP_INFO(
       rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Got state %.5f for joint %d!",
       hw_states_[i], i);
   }
-  RCLCPP_INFO(rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Joints successfully read!");
+  RCLCPP_INFO(
+    rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Joints successfully read!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
@@ -233,4 +235,5 @@ hardware_interface::return_type RRBotSystemTwoPositionOnlyHardware::write(
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  ros2_control_demo_hardware::RRBotSystemTwoPositionOnlyHardware, hardware_interface::SystemInterface)
+  ros2_control_demo_hardware::RRBotSystemTwoPositionOnlyHardware,
+  hardware_interface::SystemInterface)

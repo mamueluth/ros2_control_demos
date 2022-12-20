@@ -182,7 +182,8 @@ hardware_interface::CallbackReturn RRBotSystemOnePositionOnlyHardware::on_deacti
       hw_stop_sec_ - i);
   }
 
-  RCLCPP_INFO(rclcpp::get_logger("RRBotSystemOnePositionOnlyHardware"), "Successfully deactivated!");
+  RCLCPP_INFO(
+    rclcpp::get_logger("RRBotSystemOnePositionOnlyHardware"), "Successfully deactivated!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -202,7 +203,8 @@ hardware_interface::return_type RRBotSystemOnePositionOnlyHardware::read(
       rclcpp::get_logger("RRBotSystemOnePositionOnlyHardware"), "Got state %.5f for joint %d!",
       hw_states_[i], i);
   }
-  RCLCPP_INFO(rclcpp::get_logger("RRBotSystemOnePositionOnlyHardware"), "Joints successfully read!");
+  RCLCPP_INFO(
+    rclcpp::get_logger("RRBotSystemOnePositionOnlyHardware"), "Joints successfully read!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
@@ -233,4 +235,5 @@ hardware_interface::return_type RRBotSystemOnePositionOnlyHardware::write(
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  ros2_control_demo_hardware::RRBotSystemOnePositionOnlyHardware, hardware_interface::SystemInterface)
+  ros2_control_demo_hardware::RRBotSystemOnePositionOnlyHardware,
+  hardware_interface::SystemInterface)

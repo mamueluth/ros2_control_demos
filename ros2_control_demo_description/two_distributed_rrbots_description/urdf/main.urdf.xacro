@@ -4,7 +4,7 @@
 Copied and modified from ROS1 example -
 https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_description/urdf/rrbot.xacro
 -->
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rrbot_one">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="2dof_robot">
   <xacro:arg name="prefix" default="" />
 
   <!-- Import RRBot macro -->
@@ -14,7 +14,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
   <xacro:include filename="$(find rrbot_description)/gazebo/rrbot.materials.xacro" />
 
   <!-- Import RRBot ros2_control description -->
-  <xacro:include filename="$(find two_distributed_rrbots_description)/ros2_control/rrbot_one.ros2_control.xacro" />
+  <xacro:include filename="$(find rrbot_description)/ros2_control/rrbot.ros2_control.xacro" />
 
   <!-- Used for fixing robot -->
   <link name="world"/>
@@ -22,12 +22,11 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
     <static>true</static>
   </gazebo>
 
-  <!-- First rrbot-->
-  <xacro:rrbot parent="world" prefix="$(arg prefix)">
-    <origin xyz="2 0 0" rpy="0 0 0" />
+  <xacro:rrbot parent="world" prefix="$(arg prefix)" base_color="red">
+    <origin xyz="0 3 0" rpy="0 0 0" />
   </xacro:rrbot>
 
-  <xacro:rrbot_one_hw
-    name="rrbot_satellite_1" prefix="$(arg prefix)" />
+  <xacro:rrbot_ros2_control
+    name="RRBot" prefix="$(arg prefix)" />
 
 </robot>

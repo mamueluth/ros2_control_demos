@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="rrbot" params="parent prefix *origin">
+  <xacro:macro name="rrbot" params="parent prefix base_color *origin">
 
   <!-- Constants for robot dimensions -->
   <xacro:property name="mass" value="1" /> <!-- arbitrary value for mass -->
@@ -32,7 +32,7 @@
       <geometry>
         <box size="${width} ${width} ${height1}"/>
       </geometry>
-      <material name="orange"/>
+      <material name="${base_color}"/>
     </visual>
 
     <inertial>
