@@ -52,7 +52,7 @@ def generate_launch_description():
         ]
     )
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("rrbot_description"), "config", "rrbot.rviz"]
+        [FindPackageShare("trial_rrbot_description"), "config", "trial_rrbot.rviz"]
     )
 
     control_node = Node(
@@ -71,7 +71,6 @@ def generate_launch_description():
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        namespace=satellite_1_namespace_name,
         output="both",
         parameters=[robot_description],
     )
@@ -86,14 +85,12 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_1_namespace_name,
         arguments=["joint_state_broadcaster", "-c", satellite_1_controller_manager_name],
     )
 
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_1_namespace_name,
         arguments=["forward_position_controller", "-c", satellite_1_controller_manager_name],
     )
 

@@ -4,7 +4,7 @@ project(trial_rrbot_description)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY urdf
+  DIRECTORY config urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
