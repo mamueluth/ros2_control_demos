@@ -21,12 +21,22 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-def generate_complete_namespace(prefix, controller_manager_name):
-    return "/" + prefix + "/" + controller_manager_name
+def delete_direct_slash_duplicate(t):
+    if(not (t[0] == "/" and t[1] == "/")):
+        return t[0]
+
+def generate_complete_namespace(prefix):
+    if not prefix:
+        return ""
+    ns = "/" + prefix
+    # remove all occurrences of slashes that directly follow each other ("//Prefix/////Namespace//" -> "/Prefix/Namespace/")
+    return ''.join(filter(lambda item: item is not None, map(delete_direct_slash_duplicate , zip(ns,ns[1:] + " ")))) 
 
 def generate_launch_description():
-    satellite_1_namespace_name = "" #"sub_1"
-    satellite_1_controller_manager_name = "controller_manager" #generate_complete_namespace(satellite_1_namespace_name, "controller_manager")
+    controller_manager_name = "/controller_manager"
+    satellite_1_namespace_name = "sub_1"
+    sattelite_1_complete_ns = generate_complete_namespace(satellite_1_namespace_name)
+    satellite_1_controller_manager_name = sattelite_1_complete_ns + controller_manager_name
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -40,6 +50,8 @@ def generate_launch_description():
                     "trial_rrbot.urdf.xacro",
                 ]
             ),
+            " ",
+            "prefix:=sub_1_",
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -65,6 +77,14 @@ def generate_launch_description():
                 "/forward_position_controller/commands",
                 "/position_commands",
             ),
+            (
+                "/joint_states",
+                sattelite_1_complete_ns + "/joint_states"
+            ),
+            (
+                "/dynamic_joint_states",
+                sattelite_1_complete_ns + "/dynamic_joint_states"
+            ),
         ],
         output="both",
     )
@@ -72,6 +92,7 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="both",
+        namespace=satellite_1_namespace_name,
         parameters=[robot_description],
     )
     rviz_node = Node(

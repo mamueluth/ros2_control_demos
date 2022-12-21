@@ -1,4 +1,4 @@
-controller_manager:
+/sub_1/controller_manager:
   ros__parameters:
     update_rate: 10  # Hz
 
@@ -12,19 +12,19 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-forward_position_controller:
+/sub_1/forward_position_controller:
   ros__parameters:
     joints:
-      - trial_joint1
-      - trial_joint2
+      - sub_1_joint1
+      - sub_1_joint2
     interface_name: position
 
 
-position_trajectory_controller:
+/sub_1/position_trajectory_controller:
   ros__parameters:
     joints:
-      - trial_joint1
-      - trial_joint2
+      - sub_1_joint1
+      - sub_1_joint2
 
     command_interfaces:
       - position
