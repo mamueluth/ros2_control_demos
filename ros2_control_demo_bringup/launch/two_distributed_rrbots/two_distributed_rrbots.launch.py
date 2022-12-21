@@ -21,16 +21,28 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-def generate_complete_namespace(prefix, controller_manager_name):
-    return "/" + prefix + "/" + controller_manager_name
+def delete_direct_slash_duplicate(t):
+    if(not (t[0] == "/" and t[1] == "/")):
+        return t[0]
+
+def prepend_slash_if_not_null(prefix):
+    if not prefix:
+        return ""
+    ns = "/" + prefix
+    # remove all occurrences of slashes that directly follow each other ("//Prefix/////Namespace//" -> "/Prefix/Namespace/")
+    return ''.join(filter(lambda item: item is not None, map(delete_direct_slash_duplicate , zip(ns,ns[1:] + " ")))) 
 
 def generate_launch_description():
     # TODO(Manuel): find a way to propagate to controllers.yaml
-    # otherwise we have to define there two
-    satellite_1_namespace_name = "sub_1"
-    satellite_2_namespace_name = "sub_2"
-    satellite_1_controller_manager_name = generate_complete_namespace(satellite_1_namespace_name, "controller_manager")
-    satellite_2_controller_manager_name = generate_complete_namespace(satellite_2_namespace_name, "controller_manager")
+    # otherwise we have to define there too
+    controller_manager_name = "controller_manager"
+    satellite_1_ns_name = "sub_1"
+    satellite_2_ns_name = "sub_2"
+    slash_controller_manager_name = prepend_slash_if_not_null(controller_manager_name)
+    slash_satellite_1_ns_name = prepend_slash_if_not_null(satellite_1_ns_name)
+    slash_satellite_2_ns_name = prepend_slash_if_not_null(satellite_2_ns_name)
+    satellite_1_controller_manager_name = slash_satellite_1_ns_name + slash_controller_manager_name
+    satellite_2_controller_manager_name = slash_satellite_2_ns_name + slash_controller_manager_name
 
     # Get URDF via xacro
     main_robot_description_content = Command(
@@ -58,6 +70,8 @@ def generate_launch_description():
                     "two_distributed_rrbots_one.urdf.xacro",
                 ]
             ),
+            " ",
+            "prefix:=sub_1_",
         ]
     )
 
@@ -72,6 +86,8 @@ def generate_launch_description():
                     "two_distributed_rrbots_two.urdf.xacro",
                 ]
             ),
+            " ",
+            "prefix:=sub_2_",
         ]
     )
     
@@ -172,12 +188,20 @@ def generate_launch_description():
     sub_1_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        namespace=satellite_1_namespace_name,
+        namespace=satellite_1_ns_name,
         parameters=[robot_satellite_1_description, robot_controllers_satellite_1],
         remappings=[
             (
                 "/forward_position_controller/commands",
                 "/position_commands",
+            ),
+            (
+                "/joint_states",
+                slash_satellite_1_ns_name + "/joint_states"
+            ),
+            (
+                "/dynamic_joint_states",
+                slash_satellite_1_ns_name + "/dynamic_joint_states"
             ),
         ],
         output="both",
@@ -186,22 +210,22 @@ def generate_launch_description():
     robot_state_pub_node_1 = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        namespace=satellite_1_namespace_name,
         output="both",
+        namespace=satellite_1_ns_name,
         parameters=[robot_satellite_1_description],
     )
 
     joint_state_broadcaster_spawner_1 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_1_namespace_name,
+        namespace=satellite_1_ns_name,
         arguments=["joint_state_broadcaster", "-c", satellite_1_controller_manager_name ],
     )
 
     robot_controller_spawner_1 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_1_namespace_name,
+        namespace=satellite_1_ns_name,
         arguments=["forward_position_controller", "-c", satellite_1_controller_manager_name],
     )
 
@@ -222,7 +246,7 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        namespace=satellite_1_namespace_name,
+        namespace=satellite_1_ns_name,
         output="log",
         arguments=["-d", rviz_config_file_1],
     )
@@ -241,12 +265,20 @@ def generate_launch_description():
     sub_2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        namespace=satellite_2_namespace_name,
+        namespace=satellite_2_ns_name,
         parameters=[robot_satellite_2_description, robot_controllers_satellite_2],
         remappings=[
             (
                 "/forward_position_controller/commands",
                 "/position_commands",
+            ),
+            (
+                "/joint_states",
+                slash_satellite_2_ns_name + "/joint_states"
+            ),
+            (
+                "/dynamic_joint_states",
+                slash_satellite_2_ns_name + "/dynamic_joint_states"
             ),
         ],
         output="both",
@@ -255,7 +287,7 @@ def generate_launch_description():
     robot_state_pub_node_2 = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        namespace=satellite_2_namespace_name,
+        namespace=satellite_2_ns_name,
         output="both",
         parameters=[robot_satellite_2_description],
     )
@@ -263,14 +295,14 @@ def generate_launch_description():
     joint_state_broadcaster_spawner_2 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_2_namespace_name,
+        namespace=satellite_2_ns_name,
         arguments=["joint_state_broadcaster", "-c", satellite_2_controller_manager_name ],
     )
 
     robot_controller_spawner_2 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace=satellite_2_namespace_name,
+        namespace=satellite_2_ns_name,
         arguments=["forward_position_controller", "-c", satellite_2_controller_manager_name],
     )
 
@@ -291,7 +323,7 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        namespace=satellite_2_namespace_name,
+        namespace=satellite_2_ns_name,
         output="log",
         arguments=["-d", rviz_config_file_2],
     )
