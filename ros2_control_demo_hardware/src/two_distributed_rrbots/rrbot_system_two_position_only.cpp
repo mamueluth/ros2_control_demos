@@ -197,8 +197,8 @@ hardware_interface::return_type RRBotSystemTwoPositionOnlyHardware::read(
 
   for (uint i = 0; i < hw_states_.size(); i++)
   {
-    // Simulate RRBot's movement mirrowed
-    hw_states_[i] = hw_states_[i] - (hw_commands_[i] - hw_states_[i]) / hw_slowdown_;
+    // Simulate RRBot's movement
+    hw_states_[i] = hw_states_[i] + (hw_commands_[i] - hw_states_[i]) / hw_slowdown_;
     RCLCPP_INFO(
       rclcpp::get_logger("RRBotSystemTwoPositionOnlyHardware"), "Got state %.5f for joint %d!",
       hw_states_[i], i);

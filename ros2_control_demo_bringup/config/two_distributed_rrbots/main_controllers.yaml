@@ -19,10 +19,10 @@ forward_position_controller:
     joints:
       - joint1
       - joint2
-      # - /sub_1/joint1
-      # - /sub_1/joint2
-      # - /sub_2/joint1
-      # - /sub_2/joint2
+      - /sub_1/sub_1_joint1
+      - /sub_1/sub_1_joint2
+      - /sub_2/sub_2_joint1
+      - /sub_2/sub_2_joint2
     interface_name: position
 
 
@@ -31,7 +31,10 @@ position_trajectory_controller:
     joints:
       - joint1
       - joint2
-
+      - /sub_1/sub_1_joint1
+      - /sub_1/sub_1_joint2
+      - /sub_2/sub_2_joint1
+      - /sub_2/sub_2_joint2
     command_interfaces:
       - position
 
