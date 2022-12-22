@@ -162,27 +162,6 @@ def generate_launch_description():
         )
     )
 
-    # RVIZ
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots.rviz"]
-    )
-
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
-    )
-
-    # Delay rviz start after `joint_state_broadcaster`
-    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[rviz_node],
-        )
-    )
-
     # SUBSYSTEMS
     # subsystem 1, satellite controller
     sub_1_control_node = Node(
@@ -234,28 +213,6 @@ def generate_launch_description():
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner_1,
             on_exit=[robot_controller_spawner_1],
-        )
-    )
-
-    # RVIZ
-    rviz_config_file_1 = PathJoinSubstitution(
-        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots_1.rviz"]
-    )
-
-    rviz_node_1 = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        namespace=satellite_1_ns_name,
-        output="log",
-        arguments=["-d", rviz_config_file_1],
-    )
-
-    # Delay rviz start after `joint_state_broadcaster`
-    delay_rviz_after_joint_state_broadcaster_spawner_1 = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner_1,
-            on_exit=[rviz_node_1],
         )
     )
 
@@ -314,25 +271,25 @@ def generate_launch_description():
         )
     )
 
-    # RVIZ  
-    rviz_config_file_2 = PathJoinSubstitution(
-        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots_2.rviz"]
+
+    # RVIZ
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare("two_distributed_rrbots_description"), "config", "two_distributed_rrbots_all_in_on.rviz"]
     )
 
-    rviz_node_2 = Node(
+    rviz_node = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        namespace=satellite_2_ns_name,
         output="log",
-        arguments=["-d", rviz_config_file_2],
+        arguments=["-d", rviz_config_file],
     )
 
     # Delay rviz start after `joint_state_broadcaster`
-    delay_rviz_after_joint_state_broadcaster_spawner_2 = RegisterEventHandler(
+    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner_2,
-            on_exit=[rviz_node_2],
+            on_exit=[rviz_node],
         )
     )
 
@@ -340,18 +297,16 @@ def generate_launch_description():
         main_control_node,
         robot_state_pub_node,
         joint_state_broadcaster_spawner,
-        delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
         sub_1_control_node,
         robot_state_pub_node_1,
         joint_state_broadcaster_spawner_1,
-        delay_rviz_after_joint_state_broadcaster_spawner_1,
         #delay_robot_controller_spawner_after_joint_state_broadcaster_spawner_1,
         sub_2_control_node,
         robot_state_pub_node_2,
         joint_state_broadcaster_spawner_2,
-        delay_rviz_after_joint_state_broadcaster_spawner_2,
         #delay_robot_controller_spawner_after_joint_state_broadcaster_spawner_2,
+        delay_rviz_after_joint_state_broadcaster_spawner,
     ]
 
     return LaunchDescription(nodes)
