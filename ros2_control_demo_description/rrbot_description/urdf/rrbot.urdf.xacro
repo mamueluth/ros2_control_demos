@@ -22,7 +22,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
     <static>true</static>
   </gazebo>
 
-  <xacro:rrbot parent="world" prefix="$(arg prefix)" base_color="orange">
+  <xacro:rrbot parent="world" prefix="$(arg prefix)">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:rrbot>
 

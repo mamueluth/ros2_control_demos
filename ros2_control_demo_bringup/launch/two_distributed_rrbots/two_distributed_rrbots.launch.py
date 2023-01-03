@@ -56,6 +56,8 @@ def generate_launch_description():
                     "main.urdf.xacro",
                 ]
             ),
+            " ",
+            "base_color:=red",
         ]
     )
 
@@ -72,6 +74,8 @@ def generate_launch_description():
             ),
             " ",
             "prefix:=sub_1_",
+            " ",
+            "base_color:=green",
         ]
     )
 
@@ -88,6 +92,8 @@ def generate_launch_description():
             ),
             " ",
             "prefix:=sub_2_",
+            " ",
+            "base_color:=blue",
         ]
     )
     

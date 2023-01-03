@@ -6,6 +6,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rrbot_one">
   <xacro:arg name="prefix" default="" />
+  <xacro:arg name="base_color" default="orange" />
 
   <!-- Import RRBot macro -->
   <xacro:include filename="$(find rrbot_description)/urdf/rrbot_description.urdf.xacro" />
@@ -23,7 +24,7 @@ https://github.com/ros-simulation/gazebo_ros_demos/blob/kinetic-devel/rrbot_desc
   </gazebo>
 
   <!-- First rrbot-->
-  <xacro:rrbot parent="world" prefix="$(arg prefix)" base_color="green">
+  <xacro:rrbot parent="world" prefix="$(arg prefix)" base_color="$(arg base_color)">
     <origin xyz="2 0 0" rpy="0 0 0" />
   </xacro:rrbot>
 
